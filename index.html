@@ -1,0 +1,1034 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Plan &amp; Permit Pipeline</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#F4EFDF; --surface:#FFFCF3; --surface-2:#FAF4E4; --sunk:#EAE2CC; --zebra:#FDFBF2;
+  --ink:#3D2015; --ink-2:#6B4A3C; --ink-mut:#8A6B5A; --line:#E0D5BA; --line-strong:#CDBE9C;
+  --green:#189946; --green-deep:#106D38; --gold:#FDB636; --gold-soft:#FFE9BE;
+  --orange:#E27A25; --red:#B23A1E; --hold:#8C8577;
+  --c-done:#DCF0E1; --c-active:#FFF0CE; --c-action:#FBE0CC; --c-none:transparent; --c-hold:#E6E3DC;
+  --t-done:#0E6B34; --t-active:#8A5A05; --t-action:#9E4A11; --t-none:#8A6B5A; --t-hold:#6B655B;
+  --c-na:#EDE6D4; --t-na:#7A6450;
+  --late:#B23A1E; --soon:#9E6A0A;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#171009; --surface:#221810; --surface-2:#2B1F15; --sunk:#120C07; --zebra:#1E1610;
+    --ink:#F2EADA; --ink-2:#D6C7B0; --ink-mut:#A08D78; --line:#3A2A1C; --line-strong:#4E3927;
+    --green:#35B863; --green-deep:#1F8E4C;
+    --c-done:#16371F; --c-active:#3D2C0C; --c-action:#3F2210; --c-none:transparent; --c-hold:#2A2620;
+    --t-done:#8FE3AA; --t-active:#F3C169; --t-action:#F0A878; --t-none:#A08D78; --t-hold:#B5AC9C;
+    --c-na:#2E2418; --t-na:#B09A82;
+    --late:#F09076; --soon:#F3C169;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#171009; --surface:#221810; --surface-2:#2B1F15; --sunk:#120C07; --zebra:#1E1610;
+  --ink:#F2EADA; --ink-2:#D6C7B0; --ink-mut:#A08D78; --line:#3A2A1C; --line-strong:#4E3927;
+  --green:#35B863; --green-deep:#1F8E4C;
+  --c-done:#16371F; --c-active:#3D2C0C; --c-action:#3F2210; --c-none:transparent; --c-hold:#2A2620;
+  --t-done:#8FE3AA; --t-active:#F3C169; --t-action:#F0A878; --t-none:#A08D78; --t-hold:#B5AC9C;
+  --c-na:#2E2418; --t-na:#B09A82;
+  --late:#F09076; --soon:#F3C169;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+button,select,input,textarea{font:inherit;color:inherit}
+h1{margin:0;font-family:'Fredoka One','Nunito',cursive;font-weight:400}
+:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+
+/* ---------- masthead ---------- */
+.mast{background:var(--green-deep);color:#FAF6E8;border-bottom:3px solid var(--gold)}
+.mast-in{padding:10px 16px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:13px;min-width:0}
+.brand img{height:28px;width:auto;display:block}
+.brand .rule{width:1px;height:28px;background:rgba(250,246,232,.3)}
+.brand h1{font-size:16px;color:#FAF6E8;line-height:1.15}
+.brand .sub{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#B9E6C6;margin-top:2px}
+.counters{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap}
+.ct{display:flex;align-items:baseline;gap:6px;background:rgba(0,0,0,.18);border:1px solid rgba(250,246,232,.16);
+  padding:4px 10px;border-radius:99px;cursor:pointer;color:#FAF6E8}
+.ct:hover:not(:disabled){background:rgba(0,0,0,.32)}
+.ct:disabled{opacity:.4;cursor:default}
+.ct[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#3D2015}
+.ct b{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.ct span{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:700}
+.ct .dot{width:6px;height:6px;border-radius:50%;align-self:center}
+
+/* ---------- toolbar ---------- */
+.tools{background:var(--surface-2);border-bottom:1px solid var(--line-strong);
+  padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tools .field{display:flex;align-items:center;gap:5px}
+.tools label{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mut);font-weight:800}
+.tools select,.tools input{background:var(--surface);border:1px solid var(--line-strong);border-radius:6px;
+  padding:5px 8px;font-size:13px}
+#q{min-width:210px}
+.btn{background:var(--green);color:#fff;border:0;border-radius:7px;padding:6px 12px;font-weight:800;font-size:12.5px;cursor:pointer}
+.btn:hover{background:var(--green-deep)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink-2);border:1px solid var(--line-strong);font-weight:700}
+.btn.ghost:hover:not(:disabled){background:var(--sunk);color:var(--ink)}
+.spacer{margin-left:auto}
+
+/* ---------- notice ---------- */
+.notice{padding:9px 16px;background:var(--gold-soft);border-bottom:1px solid var(--gold);
+  font-size:12.5px;color:#6B4A0A;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .notice{background:#3B2A0C;color:#FFDFA6}}
+:root[data-theme="dark"] .notice{background:#3B2A0C;color:#FFDFA6}
+
+/* ---------- the grid ---------- */
+.gridwrap{overflow:auto;max-height:calc(100vh - 96px)}
+table{border-collapse:separate;border-spacing:0;font-size:12.5px;background:var(--surface);table-layout:fixed}
+td.proj .cell,td.proj{overflow:hidden}
+th,td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:0;vertical-align:middle}
+thead th{position:sticky;top:0;z-index:3;background:var(--surface-2);color:var(--ink-2);
+  font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:800;text-align:left;
+  padding:7px 8px;line-height:1.25;cursor:pointer;border-bottom:2px solid var(--line-strong);
+  white-space:normal;vertical-align:bottom}
+thead th:hover{color:var(--ink);background:var(--sunk)}
+thead th.act{cursor:default}
+/* the one frozen column — a second sticky column compounds its offset, so the
+   row number lives inside this cell rather than in a column of its own */
+th.proj,td.proj{position:sticky;left:0;z-index:2;background:var(--surface);
+  border-right:2px solid var(--line-strong)}
+thead th.proj{z-index:4;background:var(--surface-2);padding-left:32px}
+tbody tr:nth-child(even) td{background:var(--zebra)}
+tbody tr:nth-child(even) td.proj{background:var(--zebra)}
+tbody tr:hover td{background:var(--sunk)}
+tbody tr:hover td.proj{background:var(--sunk)}
+/* no position here — it would override the sticky rule above at equal specificity
+   and unfreeze the column; sticky already establishes the containing block */
+td.proj{font-weight:800}
+td.proj::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--hc,transparent)}
+.rn{position:absolute;left:7px;top:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:var(--ink-mut);font-variant-numeric:tabular-nums;font-weight:500}
+td.proj .cell{padding-left:32px}
+.flag{padding-left:32px}
+
+/* cell editors — look like spreadsheet cells until touched */
+.cell{width:100%;border:0;background:transparent;padding:6px 8px;font-size:12.5px;border-radius:0;
+  display:block;min-width:0}
+.cell:hover{box-shadow:inset 0 0 0 1px var(--line-strong)}
+.cell:focus{outline:0;box-shadow:inset 0 0 0 2px var(--green);background:var(--surface)}
+select.cell{cursor:pointer;appearance:none;-webkit-appearance:none;font-weight:700;
+  background-image:none;padding-right:8px}
+input.cell[type=date]{font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-variant-numeric:tabular-nums}
+button.cell.dstub{text-align:left;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11.5px;
+  color:var(--ink-mut);opacity:.4}
+button.cell.dstub:hover,button.cell.dstub:focus-visible{opacity:1}
+button.cell.dstub.na{opacity:.85;font-weight:600;letter-spacing:.04em}
+td.proj .cell{font-weight:800}
+textarea.cell{resize:vertical;min-height:32px;line-height:1.35;font-size:12px;color:var(--ink-2)}
+/* conditional fills, mirroring the sheet's status colors */
+td.st-done select{background:var(--c-done);color:var(--t-done)}
+td.st-active select{background:var(--c-active);color:var(--t-active)}
+td.st-action select{background:var(--c-action);color:var(--t-action)}
+td.st-none select{background:var(--c-none);color:var(--t-none);font-weight:400}
+td.st-hold select{background:var(--c-hold);color:var(--t-hold)}
+td.st-na select{background:var(--c-na);color:var(--t-na);font-weight:600}
+td.d-late input{color:var(--late);font-weight:600}
+td.d-soon input{color:var(--soon);font-weight:600}
+/* drag handle lives in the frozen project cell */
+.rn{padding:2px 3px;border-radius:3px;touch-action:none}
+.rn.grab{cursor:grab}
+.rn.grab:hover{background:var(--line-strong);color:var(--ink)}
+.rn.grab:active{cursor:grabbing}
+.rn.locked{cursor:default}
+.rn.locked:hover{background:none;color:var(--ink-mut)}
+tr.dragging td{opacity:.4}
+tr.dropbefore td{box-shadow:inset 0 2px 0 0 var(--green)}
+tr.dropafter td{box-shadow:inset 0 -2px 0 0 var(--green)}
+
+/* per-cell comment marker — the cell must be the positioning context,
+   or every marker stacks against the page instead of its own cell */
+tbody td{position:relative}
+.cmark{position:absolute;top:0;right:0;width:13px;height:13px;padding:0;border:0;border-radius:0 0 0 4px;
+  background:transparent;color:var(--ink-mut);font-family:'IBM Plex Mono',monospace;font-size:8.5px;
+  font-weight:600;line-height:13px;text-align:center;cursor:pointer;opacity:0;z-index:2}
+td:hover .cmark{opacity:.5}
+.cmark.has{opacity:1;background:var(--gold);color:#3D2015}
+.cmark:hover,.cmark:focus-visible{opacity:1;background:var(--green);color:#fff}
+.cmark.has::after{content:""}
+
+/* comment popover */
+.pop{position:fixed;z-index:70;width:320px;max-width:calc(100vw - 24px);background:var(--surface);
+  border:1px solid var(--line-strong);border-radius:10px;box-shadow:0 12px 34px -12px rgba(0,0,0,.45);
+  display:flex;flex-direction:column;max-height:min(420px,70vh)}
+.pop header{padding:9px 12px;border-bottom:1px solid var(--line);background:var(--surface-2);
+  border-radius:10px 10px 0 0;display:flex;align-items:baseline;gap:8px}
+.pop header b{font-size:12.5px;font-weight:800}
+.pop header span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mut);font-weight:700}
+.pop header button{margin-left:auto;background:none;border:0;cursor:pointer;color:var(--ink-mut);font-size:14px;line-height:1;padding:2px 4px}
+.pop header button:hover{color:var(--ink)}
+.pop .thread{overflow-y:auto;padding:4px 0;flex:1;min-height:0}
+.pop .none{padding:16px 12px;text-align:center;color:var(--ink-mut);font-size:12px}
+.cmt{padding:8px 12px;border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.45}
+.cmt:last-child{border-bottom:0}
+.cmt .who{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.cmt .who img{width:16px;height:16px;border-radius:50%;flex:none}
+.cmt .who b{font-size:11.5px;font-weight:800}
+.cmt .who time{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-mut)}
+.cmt .who button{margin-left:auto;background:none;border:0;color:var(--ink-mut);cursor:pointer;
+  font-size:11px;padding:1px 4px;border-radius:4px;opacity:0}
+.cmt:hover .who button{opacity:1}
+.cmt .who button:hover{background:var(--red);color:#fff}
+.cmt p{margin:0;white-space:pre-wrap;word-break:break-word;color:var(--ink-2)}
+.pop form{border-top:1px solid var(--line);padding:9px 10px;display:flex;flex-direction:column;gap:7px}
+.pop textarea{width:100%;min-height:56px;resize:vertical;font-size:12.5px;line-height:1.4;
+  background:var(--surface);border:1px solid var(--line-strong);border-radius:7px;padding:7px 9px}
+.pop .frow{display:flex;align-items:center;gap:8px}
+.pop .frow .hint{font-size:10.5px;color:var(--ink-mut)}
+td.act{text-align:center;border-right:0;white-space:nowrap;padding:0 2px}
+.act button{background:none;border:0;color:var(--ink-mut);cursor:pointer;padding:4px 5px;border-radius:5px;
+  font-size:13px;line-height:1}
+.arch:hover{background:var(--green);color:#fff}
+.del:hover{background:var(--red);color:#fff}
+.del[data-armed="1"]{background:var(--red);color:#fff}
+tr.isarch td{opacity:.66}
+tr.isarch td.proj{font-style:italic}
+/* view switch */
+.seg{display:flex;background:var(--sunk);border:1px solid var(--line-strong);border-radius:7px;padding:2px;gap:2px}
+.seg button{background:none;border:0;padding:4px 11px;border-radius:5px;cursor:pointer;font-size:12px;
+  font-weight:700;color:var(--ink-mut);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(61,32,21,.14)}
+.seg button b{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:11px;opacity:.75;margin-left:4px}
+.flag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;color:var(--late);
+  padding:0 8px 5px;display:block;margin-top:-3px}
+tfoot td{padding:8px;border-bottom:0;background:var(--surface-2)}
+.empty{padding:36px 16px 44px;text-align:center;color:var(--ink-mut);font-size:13px}
+.empty h2{margin:0 0 4px;font-size:15px;font-family:'Nunito';font-weight:800;color:var(--ink)}
+.empty .chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:14px 0 16px}
+.empty .chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);
+  border:1px solid var(--line-strong);border-radius:99px;padding:4px 6px 4px 11px;font-size:12px;color:var(--ink-2)}
+.empty .chip b{font-weight:800;color:var(--ink)}
+.empty .chip button{background:none;border:0;cursor:pointer;color:var(--ink-mut);font-size:13px;
+  line-height:1;padding:2px 5px;border-radius:50%}
+.empty .chip button:hover{background:var(--red);color:#fff}
+.empty .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="mast">
+  <div class="mast-in">
+    <div class="brand">
+      <img id="wm" alt="Cheba Hut Toasted Subs">
+      <div class="rule"></div>
+      <div>
+        <h1>Plan &amp; Permit Pipeline</h1>
+        <div class="sub">Design &amp; Construction · Store Development</div>
+      </div>
+    </div>
+    <div class="counters" id="counters"></div>
+  </div>
+</header>
+
+<div class="tools">
+  <input type="text" id="q" placeholder="Search project, architect, notes…" aria-label="Search">
+  <div class="field"><label for="fArch">Architect</label><select id="fArch"></select></div>
+  <div class="field"><label for="fEng">Engineer</label><select id="fEng"></select></div>
+  <div class="field"><label for="fPkg">Package</label><select id="fPkg"></select></div>
+  <button class="btn ghost" id="clear" hidden>Clear filters</button>
+  <span class="spacer"></span>
+  <div class="seg" role="group" aria-label="Which projects to show">
+    <button id="vActive" aria-pressed="true">Active<b id="nActive"></b></button>
+    <button id="vArch" aria-pressed="false">Archived<b id="nArch"></b></button>
+    <button id="vAll" aria-pressed="false">All</button>
+  </div>
+  <button class="btn ghost" id="sweep" hidden>Archive completed</button>
+  <button class="btn" id="add">+ Row</button>
+  <button class="btn ghost" id="csv">Export CSV</button>
+</div>
+
+<div id="notice" class="notice" hidden><span>⚠</span><span id="noticeTxt"></span></div>
+<div class="gridwrap"><div id="grid"></div></div>
+
+<script>
+(function(){
+"use strict";
+document.getElementById('wm').src = "data:image/png;base64,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";
+
+/* ── columns, in the order of the original workbook ─────────── */
+var STAGES=[
+ {s:'floorplanStatus',  d:'floorplanDue',
+  opts:['Not Started','With Architect','HQ Review','With Franchisee','Approved','On Hold'], done:['Approved']},
+ {s:'backgroundStatus', d:'backgroundDue',
+  opts:['Not Started','With Architect','HQ Review','HQ Comments Returned','Complete'], done:['Complete']},
+ {s:'permitArchStatus', d:'permitArchDue',
+  opts:['Not Started','With Architect','HQ Review','HQ Comments Returned','Complete'], done:['Complete']},
+ {s:'permitMepStatus',  d:'permitMepDue',
+  opts:['Not Started','With Engineer','With HQ','HQ Comments Returned','Complete'], done:['Complete']},
+ {s:'permitStatus',     d:'permitSubmissionDate',
+  opts:['Not Started','In Review','Comments','Resubmittal','Approved'], done:['Approved']}
+];
+var PKGS=['TBD','OG','High Country','Diesel'];
+/* site survey list, taken from the Plan Tracking sheet's data validation.
+   The leading blank keeps "not filled in" distinct from "Not Started". */
+var SURVEY=['','Not Started','Scheduled','Not Needed','Complete','On Hold'];
+var COLS=[
+ {k:'project',               t:'Project',                            type:'text', w:270},
+ {k:'architect',             t:'Architect',                          type:'text', w:112},
+ {k:'engineer',              t:'Engineer',                           type:'text', w:112},
+ {k:'finishPackage',         t:'Finish Package',                     type:'sel', opts:PKGS, w:124},
+ {k:'siteSurvey',            t:'Site Survey',                        type:'survey', w:134},
+ {k:'surveyDate',            t:'Survey Date',                        type:'date', w:126},
+ {k:'floorplanStatus',       t:'Floorplan Status',                   type:'stat', si:0, w:150},
+ {k:'floorplanDue',          t:'Floor Plan Due Date',                type:'date', w:126},
+ {k:'backgroundStatus',      t:'Background Plan Status',             type:'stat', si:1, w:162},
+ {k:'backgroundDue',         t:'Background Due Date',                type:'date', w:126},
+ {k:'permitArchStatus',      t:'Permit Arch Plan Status',            type:'stat', si:2, w:162},
+ {k:'permitArchDue',         t:'Permit Arch Plan Due Date',          type:'date', w:126},
+ {k:'permitMepStatus',       t:'Permit MEP Plan Status',             type:'stat', si:3, w:162},
+ {k:'permitMepDue',          t:'Permit MEP Plan Due Date',           type:'date', w:126},
+ {k:'permitStatus',          t:'Permit Status',                      type:'stat', si:4, w:150},
+ {k:'permitSubmissionDate',  t:'Anticipated Permit Submission Date', type:'date', w:126},
+ {k:'permitReceiptDate',     t:'Anticipated Permit Receipt Date',    type:'date', w:126},
+ {k:'notes',                 t:'Notes',                              type:'note', w:330}
+];
+var ACTIVE={'With Architect':1,'With Engineer':1,'With HQ':1,'HQ Review':1,'With Franchisee':1,'In Review':1};
+var ACTION={'HQ Comments Returned':1,'Comments':1,'Resubmittal':1};
+function kind(st,stage){
+  if(!st) return 'none';
+  if(st==='On Hold') return 'hold';
+  if(stage.done.indexOf(st)>-1) return 'done';
+  if(ACTION[st]) return 'action';
+  if(ACTIVE[st]) return 'active';
+  return 'none';
+}
+var TODAY=(function(){var d=new Date();d.setHours(0,0,0,0);return d;})();
+function parseD(s){ if(!/^\d{4}-\d{2}-\d{2}$/.test(s||'')) return null;
+  var p=s.split('-'); return new Date(+p[0],+p[1]-1,+p[2]); }
+function days(s){ var d=parseD(s); return d===null?null:Math.round((d-TODAY)/86400000); }
+
+/* which stage the project is sitting in, and the date it's waiting on */
+function current(p){
+  if(p.floorplanStatus==='On Hold') return {hold:true,i:-1,stage:null};
+  for(var i=0;i<STAGES.length;i++){
+    if(STAGES[i].done.indexOf(p[STAGES[i].s]||'')===-1) return {hold:false,i:i,stage:STAGES[i]};
+  }
+  return {hold:false,i:5,stage:null};
+}
+/* returns WHICH field drives this project's timing, not just its value —
+   two columns can hold the same date, only one of them is the one being waited on */
+function targetDate(p,c){
+  if(c.hold||c.i===5) return {f:'',v:''};
+  if(c.i===4){
+    var st=p.permitStatus||'';
+    if(st!=='Not Started'&&p.permitReceiptDate) return {f:'permitReceiptDate',v:p.permitReceiptDate};
+    if(p.permitSubmissionDate) return {f:'permitSubmissionDate',v:p.permitSubmissionDate};
+    if(p.permitReceiptDate) return {f:'permitReceiptDate',v:p.permitReceiptDate};
+    return {f:'',v:''};
+  }
+  return {f:c.stage.d, v:p[c.stage.d]||''};
+}
+function health(p){
+  var c=current(p);
+  if(c.hold) return 'hold';
+  if(c.i===5) return 'done';
+  var n=days(targetDate(p,c).v);
+  if(n===null) return 'none';
+  return n<0?'late':(n<=14?'soon':'ok');
+}
+
+/* ── state ──────────────────────────────────────────────────── */
+/* SNAPSHOT is the offline safety net only — the live store wins whenever it answers.
+   Taken from Plan Tracking.xlsx. */
+var SNAPSHOT=[{"id":"arcadia","project":"Arcadia","architect":"KCA","engineer":"Maven","finishPackage":"OG","siteSurvey":"","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"2025-10-01","backgroundStatus":"Complete","backgroundDue":"2025-10-01","permitArchStatus":"Complete","permitArchDue":"2025-10-01","permitMepStatus":"Complete","permitMepDue":"2025-10-01","permitStatus":"Resubmittal","permitSubmissionDate":"2025-10-01","permitReceiptDate":"","notes":"In 15 day appeal process for plan use","order":0,"archived":true},{"id":"casper-wy","project":"Casper WY","architect":"KCA","engineer":"EE Parker","finishPackage":"High Country","siteSurvey":"","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"Complete","backgroundDue":"","permitArchStatus":"Complete","permitArchDue":"2025-11-07","permitMepStatus":"Complete","permitMepDue":"2025-11-07","permitStatus":"Approved","permitSubmissionDate":"2025-11-17","permitReceiptDate":"2025-12-01","notes":"Need to apply for health permit in Natrona County","order":1,"archived":true},{"id":"fort-worth-heritage","project":"Fort Worth - Heritage","architect":"KCA","engineer":"EE Parker","finishPackage":"High Country","siteSurvey":"","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"Complete","backgroundDue":"","permitArchStatus":"With Architect","permitArchDue":"2025-12-02","permitMepStatus":"With Engineer","permitMepDue":"2025-12-02","permitStatus":"Approved","permitSubmissionDate":"","permitReceiptDate":"","notes":"Permit submission waiting for Chance to resolve LL comments | [from sheet] Background due: \"Complete\"","order":2,"archived":true},{"id":"greenfield-wi","project":"Greenfield WI","architect":"KCA","engineer":"EE Parker","finishPackage":"Diesel","siteSurvey":"","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"Complete","backgroundDue":"","permitArchStatus":"Complete","permitArchDue":"2025-12-02","permitMepStatus":"With Engineer","permitMepDue":"2025-12-02","permitStatus":"Approved","permitSubmissionDate":"2025-12-15","permitReceiptDate":"2026-01-15","notes":"Permit in review, comments anticipated 1/15 | [from sheet] Background due: \"Complete\"","order":3,"archived":true},{"id":"lincoln-telegraph","project":"Lincoln - Telegraph","architect":"KCA","engineer":"EE Parker","finishPackage":"High Country","siteSurvey":"","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"Complete","backgroundDue":"","permitArchStatus":"Complete","permitArchDue":"2025-12-24","permitMepStatus":"Complete","permitMepDue":"2025-12-24","permitStatus":"Approved","permitSubmissionDate":"2025-12-24","permitReceiptDate":"2026-03-11","notes":"Permit recieved 3/11!","order":4,"archived":true},{"id":"midlothian-depot","project":"Midlothian Depot","architect":"RSI","engineer":"RSI","finishPackage":"High Country","siteSurvey":"","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"Complete","backgroundDue":"2025-12-08","permitArchStatus":"With Architect","permitArchDue":"","permitMepStatus":"With Engineer","permitMepDue":"","permitStatus":"In Review","permitSubmissionDate":"","permitReceiptDate":"","notes":"[from sheet] Permit receipt: \"Maybe received?\"","order":5,"archived":true},{"id":"baton-rouge-long-farm","project":"Baton Rouge - Long Farm","architect":"KCA/Didier","engineer":"Didier","finishPackage":"High Country","siteSurvey":"","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"Complete","backgroundDue":"","permitArchStatus":"Complete","permitArchDue":"2025-12-19","permitMepStatus":"Complete","permitMepDue":"2026-01-23","permitStatus":"In Review","permitSubmissionDate":"2026-03-09","permitReceiptDate":"2026-03-27","notes":"DDA will have engineering plans 1/23, KCA sent design set to CHF 12/19 for comments","order":6,"archived":true},{"id":"edmond-ok","project":"Edmond, OK","architect":"KCA","engineer":"EE Parker","finishPackage":"OG","siteSurvey":"","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"2025-11-21","backgroundStatus":"Complete","backgroundDue":"","permitArchStatus":"Complete","permitArchDue":"2026-02-11","permitMepStatus":"Complete","permitMepDue":"2026-02-11","permitStatus":"In Review","permitSubmissionDate":"2026-03-02","permitReceiptDate":"2026-03-23","notes":"Permit received 3/23/26","order":7,"archived":true},{"id":"scottsdale-plaza","project":"Scottsdale Plaza","architect":"KCA","engineer":"Maven","finishPackage":"Diesel","siteSurvey":"","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"2026-01-16","backgroundStatus":"Complete","backgroundDue":"2026-03-13","permitArchStatus":"With Architect","permitArchDue":"2026-04-03","permitMepStatus":"With Engineer","permitMepDue":"2026-04-03","permitStatus":"Not Started","permitSubmissionDate":"","permitReceiptDate":"2026-06-18","notes":"Should be final round of comments due 6/18","order":8,"archived":true},{"id":"greenhouse-rd","project":"Greenhouse Rd","architect":"KCA","engineer":"EE Parker","finishPackage":"Diesel","siteSurvey":"Not Needed","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"2026-01-05","backgroundStatus":"Complete","backgroundDue":"2026-03-13","permitArchStatus":"Complete","permitArchDue":"2026-04-01","permitMepStatus":"Complete","permitMepDue":"2026-04-01","permitStatus":"Not Started","permitSubmissionDate":"2026-09-09","permitReceiptDate":"","notes":"LL plan approval due 9/8","order":9,"archived":false},{"id":"norman-ok","project":"Norman, OK","architect":"KCA","engineer":"EE Parker","finishPackage":"High Country","siteSurvey":"","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"With Architect","backgroundDue":"2026-03-13","permitArchStatus":"With Architect","permitArchDue":"2026-04-03","permitMepStatus":"Not Started","permitMepDue":"2026-04-03","permitStatus":"Not Started","permitSubmissionDate":"","permitReceiptDate":"","notes":"Permit issued","order":10,"archived":true},{"id":"bentonville-ar","project":"Bentonville, AR","architect":"KCA","engineer":"TBD","finishPackage":"TBD","siteSurvey":"","surveyDate":"","floorplanStatus":"With Franchisee","floorplanDue":"","backgroundStatus":"Not Started","backgroundDue":"","permitArchStatus":"Not Started","permitArchDue":"","permitMepStatus":"Not Started","permitMepDue":"","permitStatus":"Not Started","permitSubmissionDate":"","permitReceiptDate":"","notes":"Pending lease negotiation","order":11,"archived":true},{"id":"rio-rancho-nm","project":"Rio Rancho NM","architect":"RSI","engineer":"RSI","finishPackage":"TBD","siteSurvey":"Not Needed","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"Complete","backgroundDue":"","permitArchStatus":"With Architect","permitArchDue":"","permitMepStatus":"With Engineer","permitMepDue":"","permitStatus":"Not Started","permitSubmissionDate":"","permitReceiptDate":"","notes":"First round floorplan comments returned 10/31","order":12,"archived":false},{"id":"medina-station","project":"Medina Station","architect":"KCA","engineer":"EE Parker","finishPackage":"TBD","siteSurvey":"Not Needed","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"Not Started","backgroundDue":"","permitArchStatus":"","permitArchDue":"","permitMepStatus":"","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"","order":13,"archived":false},{"id":"gateway-crossing","project":"Gateway Crossing","architect":"KCA","engineer":"EE Parker","finishPackage":"TBD","siteSurvey":"Complete","surveyDate":"2026-09-25","floorplanStatus":"Not Started","floorplanDue":"","backgroundStatus":"Not Started","backgroundDue":"","permitArchStatus":"","permitArchDue":"","permitMepStatus":"","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"Pending site survey","order":14,"archived":false},{"id":"san-antonio-utsa","project":"San Antonio UTSA","architect":"KCA","engineer":"EE Parker","finishPackage":"TBD","siteSurvey":"Not Needed","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"Complete","backgroundDue":"","permitArchStatus":"With Architect","permitArchDue":"","permitMepStatus":"With Engineer","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"","order":15,"archived":false},{"id":"santa-fe","project":"Santa Fe","architect":"RSI","engineer":"RSI","finishPackage":"TBD","siteSurvey":"Complete","surveyDate":"","floorplanStatus":"On Hold","floorplanDue":"","backgroundStatus":"Not Started","backgroundDue":"","permitArchStatus":"","permitArchDue":"","permitMepStatus":"","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"On hold due to development issues","order":16,"archived":false},{"id":"colonial-heights","project":"Colonial Heights","architect":"RSI","engineer":"RSI","finishPackage":"OG","siteSurvey":"Complete","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"Complete","backgroundDue":"","permitArchStatus":"With Architect","permitArchDue":"","permitMepStatus":"With Engineer","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"","order":17,"archived":false},{"id":"hilltop-plaza","project":"Hilltop Plaza","architect":"RSI","engineer":"RSI","finishPackage":"","siteSurvey":"","surveyDate":"","floorplanStatus":"HQ Review","floorplanDue":"","backgroundStatus":"","backgroundDue":"","permitArchStatus":"","permitArchDue":"","permitMepStatus":"","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"","order":18,"archived":true},{"id":"hampton","project":"Hampton","architect":"RSI","engineer":"RSI","finishPackage":"TBD","siteSurvey":"","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"With Architect","backgroundDue":"","permitArchStatus":"","permitArchDue":"","permitMepStatus":"","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"","order":19,"archived":false},{"id":"utsa-merc","project":"UTSA - Merc","architect":"KCA/Alvin","engineer":"Alvin","finishPackage":"High Country","siteSurvey":"Not Needed","surveyDate":"","floorplanStatus":"Approved","floorplanDue":"","backgroundStatus":"Complete","backgroundDue":"","permitArchStatus":"With Architect","permitArchDue":"","permitMepStatus":"","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"","order":20,"archived":false},{"id":"ann-arbor-stadium","project":"Ann Arbor Stadium","architect":"KCA","engineer":"EE Parker","finishPackage":"TBD","siteSurvey":"Complete","surveyDate":"2026-08-05","floorplanStatus":"On Hold","floorplanDue":"","backgroundStatus":"","backgroundDue":"","permitArchStatus":"","permitArchDue":"","permitMepStatus":"","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"On hold pending LL response to no patio","order":21,"archived":false},{"id":"canton-ford-rd","project":"Canton - Ford Rd","architect":"RSI","engineer":"RSI","finishPackage":"TBD","siteSurvey":"","surveyDate":"","floorplanStatus":"With Architect","floorplanDue":"","backgroundStatus":"","backgroundDue":"","permitArchStatus":"","permitArchDue":"","permitMepStatus":"","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"","order":22,"archived":false},{"id":"pflugerville-howard-post","project":"Pflugerville - Howard Post","architect":"KCA","engineer":"EE Parker","finishPackage":"TBD","siteSurvey":"Complete","surveyDate":"2026-10-06","floorplanStatus":"Not Started","floorplanDue":"","backgroundStatus":"","backgroundDue":"","permitArchStatus":"","permitArchDue":"","permitMepStatus":"","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"","order":23,"archived":false},{"id":"springdale-cadence-plaza","project":"Springdale - Cadence Plaza","architect":"KCA","engineer":"EE Parker","finishPackage":"TBD","siteSurvey":"Not Started","surveyDate":"","floorplanStatus":"Not Started","floorplanDue":"","backgroundStatus":"","backgroundDue":"","permitArchStatus":"","permitArchDue":"","permitMepStatus":"","permitMepDue":"","permitStatus":"","permitSubmissionDate":"","permitReceiptDate":"","notes":"","order":24,"archived":false},{"id":"urvl8wsjstdzxu99spuj","project":"New project","architect":"","engineer":"","finishPackage":"TBD","siteSurvey":"","surveyDate":"","floorplanStatus":"Not Started","floorplanDue":"","backgroundStatus":"Not Started","backgroundDue":"","permitArchStatus":"Not Started","permitArchDue":"","permitMepStatus":"Not Started","permitMepDue":"","permitStatus":"Not Started","permitSubmissionDate":"","permitReceiptDate":"","notes":"","order":1788551195.654,"archived":false}];
+var SNAPDATE='October 15, 2026';
+var db=null, live=false, byId={}, order=[], sortKey='', sortDir=1, mode='active';
+var cmts={}, cunsub=null, meId=null, userCap=null, profs={}, openCell=null;
+function ckey(pid,f){ return pid+'__'+f; }
+function cthread(pid,f){ var t=cmts[ckey(pid,f)]; return (t&&t.items)||[]; }
+function when(ms){
+  var d=Math.round((Date.now()-ms)/60000);
+  if(d<1) return 'just now';
+  if(d<60) return d+'m ago';
+  if(d<1440) return Math.round(d/60)+'h ago';
+  var t=new Date(ms); return (t.getMonth()+1)+'/'+t.getDate()+'/'+String(t.getFullYear()).slice(2);
+}
+var filt={q:'',arch:'',eng:'',pkg:'',health:''};
+function isArch(p){ return p.archived===true; }
+/* a project is finished when the permit is approved and nothing upstream is outstanding */
+function complete(p){ var c=current(p); return !c.hold && c.i===5; }
+var el=function(id){return document.getElementById(id);};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+function rows(){
+  return rowsIn(mode);
+}
+function matches(p){
+  var q=filt.q.toLowerCase().trim();
+  if(filt.arch&&p.architect!==filt.arch) return false;
+  if(filt.eng&&p.engineer!==filt.eng) return false;
+  if(filt.pkg&&(p.finishPackage||'TBD')!==filt.pkg) return false;
+  if(filt.health&&health(p)!==filt.health) return false;
+  if(q&&((p.project+' '+p.architect+' '+p.engineer+' '+p.finishPackage+' '+(p.siteSurvey||'')+' '+p.notes)
+      .toLowerCase().indexOf(q)===-1)) return false;
+  return true;
+}
+function rowsIn(m){
+  var out=order.map(function(id){return byId[id];}).filter(Boolean);
+  out=out.filter(function(p){
+    if(m==='active'&&isArch(p)) return false;
+    if(m==='archived'&&!isArch(p)) return false;
+    return matches(p);
+  });
+  if(sortKey) out.sort(function(a,b){
+    var x=(a[sortKey]||'').toString().toLowerCase(), y=(b[sortKey]||'').toString().toLowerCase();
+    if(!x&&y) return 1; if(x&&!y) return -1;
+    return x<y?-sortDir:x>y?sortDir:0;});
+  return out;
+}
+
+/* ── counters ───────────────────────────────────────────────── */
+var CT=[{k:'late',t:'Overdue',c:'var(--red)'},{k:'soon',t:'Due ≤14d',c:'var(--gold)'},
+        {k:'hold',t:'On Hold',c:'var(--hold)'},{k:'done',t:'Permitted',c:'var(--green)'}];
+function drawCounters(){
+  /* scoped to whichever set is on screen — archived work shouldn't inflate the overdue count */
+  var all=order.map(function(i){return byId[i];}).filter(Boolean).filter(function(p){
+    if(mode==='active') return !isArch(p);
+    if(mode==='archived') return isArch(p);
+    return true;
+  }), n={};
+  all.forEach(function(p){var h=health(p);n[h]=(n[h]||0)+1;});
+  el('counters').innerHTML='<div class="ct" style="cursor:default;background:rgba(0,0,0,.1)"><b>'+
+    all.length+'</b><span>'+(mode==='archived'?'Archived':mode==='all'?'Projects':'Active')+'</span></div>'+
+    CT.map(function(c){ var v=n[c.k]||0, on=filt.health===c.k;
+      /* a chip reading 0 would only ever filter to an empty table */
+      return '<button class="ct" data-h="'+c.k+'" aria-pressed="'+on+'"'+
+        (v||on?'':' disabled title="Nothing in this state right now"')+'>'+
+        '<span class="dot" style="background:'+c.c+'"></span><b>'+v+'</b><span>'+c.t+'</span></button>';
+    }).join('');
+  Array.prototype.forEach.call(el('counters').querySelectorAll('[data-h]'),function(b){
+    b.onclick=function(){ filt.health=filt.health===b.dataset.h?'':b.dataset.h; render(); };
+  });
+}
+
+/* ── the grid ───────────────────────────────────────────────── */
+/* Which status governs each date, and which statuses mean "nothing is happening yet".
+   An empty date box on a dormant row is clutter, so it collapses to a stub until
+   the activity starts — but a date that already has a value is ALWAYS shown. */
+var DATEPAIR={surveyDate:'siteSurvey', floorplanDue:'floorplanStatus', backgroundDue:'backgroundStatus',
+  permitArchDue:'permitArchStatus', permitMepDue:'permitMepStatus',
+  permitSubmissionDate:'permitStatus', permitReceiptDate:'permitStatus'};
+var DORMANT={'':1,'Not Started':1,'On Hold':1};
+var FINISHED={'Approved':1,'Complete':1};
+function dateState(p,k){
+  if(p[k]) return 'open';                 /* never hide a date someone has set */
+  var s=DATEPAIR[k]; if(!s) return 'open';
+  var st=p[s]||'';
+  if(st==='Not Needed') return 'na';
+  if(DORMANT[st]) return 'idle';
+  /* a finished activity has no due date to chase — except the permit receipt,
+     which is exactly what you record once the permit is approved */
+  if(FINISHED[st]&&k!=='permitReceiptDate') return 'done';
+  return 'open';
+}
+function cellFor(p,c){
+  var v=p[c.k]==null?'':p[c.k], id=esc(p.id), a='data-id="'+id+'" data-f="'+c.k+'"';
+  if(c.type==='date'){
+    var ds=dateState(p,c.k);
+    if(ds==='open') return '<input class="cell" type="date" '+a+' value="'+esc(v)+'">';
+    var tip={na:'Not needed — click if you still want a date',
+             done:'Already finished — click to record a date',
+             idle:'Not started — click to set a date'}[ds];
+    return '<button type="button" class="cell dstub'+(ds==='na'?' na':'')+'" '+a+
+      ' title="'+tip+'">'+(ds==='na'?'NA':'—')+'</button>';
+  }
+  if(c.type==='note') return '<textarea class="cell" rows="1" '+a+'>'+esc(v)+'</textarea>';
+  if(c.type==='survey') return '<select class="cell" '+a+'>'+SURVEY.map(function(o){
+    return '<option value="'+esc(o)+'"'+(o===v?' selected':'')+'>'+(o?esc(o):'—')+'</option>';}).join('')+'</select>';
+  if(c.type==='sel') return '<select class="cell" '+a+'>'+c.opts.map(function(o){
+    return '<option'+(o===(v||'TBD')?' selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select>';
+  if(c.type==='stat'){ var st=STAGES[c.si];
+    return '<select class="cell" '+a+'>'+st.opts.map(function(o){
+      return '<option'+(o===(v||'Not Started')?' selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select>'; }
+  return '<input class="cell" type="text" '+a+' value="'+esc(v)+'">';
+}
+var SURVEY_KIND={'Complete':'done','Scheduled':'active','Not Needed':'na','On Hold':'hold'};
+function tdClass(p,c){
+  if(c.type==='survey') return ' class="st-'+(SURVEY_KIND[p[c.k]]||'none')+'"';
+  if(c.type==='stat') return ' class="st-'+kind(p[c.k],STAGES[c.si])+'"';
+  if(c.type==='date'){
+    var t=targetDate(p,current(p));
+    if(t.f===c.k&&t.v){
+      var n=days(t.v);
+      if(n!==null&&n<0) return ' class="d-late"';
+      if(n!==null&&n<=14) return ' class="d-soon"';
+    }
+    return '';
+  }
+  return c.k==='project'?' class="proj"':'';
+}
+/* hold the viewer's place across a re-render — sorting used to jump to the top-left */
+function keepPlace(fn){
+  var w=document.querySelector('.gridwrap');
+  var sc=w?w.scrollTop:0, sl=w?w.scrollLeft:0;
+  var act=document.activeElement, aid=act&&act.dataset?act.dataset.id:null,
+      af=act&&act.dataset?act.dataset.f:null;
+  fn();
+  if(w){ w.scrollTop=sc; w.scrollLeft=sl; }
+  if(aid){ var back=el('grid').querySelector('[data-id="'+aid+'"][data-f="'+af+'"]'); if(back) back.focus(); }
+}
+/* a throw in here used to leave the grid blank with no explanation */
+function render(){
+  try{ renderNow(); }
+  catch(e){
+    if(window.console&&console.error) console.error('render failed',e);
+    flash('The table hit an error while redrawing: '+((e&&e.message)||e)+
+          ' — your data is safe; reload the page.',true);
+  }
+}
+function renderNow(){
+  var all=order.map(function(i){return byId[i];}).filter(Boolean);
+  function uniq(f){var s={};all.forEach(function(p){if(p[f])s[p[f]]=1;});return Object.keys(s).sort();}
+  function fill(id,vals,cur){ el(id).innerHTML='<option value="">All</option>'+vals.map(function(v){
+    return '<option'+(v===cur?' selected':'')+'>'+esc(v)+'</option>';}).join(''); }
+  fill('fArch',uniq('architect'),filt.arch); fill('fEng',uniq('engineer'),filt.eng);
+  fill('fPkg',PKGS,filt.pkg);
+  drawCounters();
+  el('clear').hidden=!(filt.q||filt.arch||filt.eng||filt.pkg||filt.health);
+
+  var nA=0,nZ=0; all.forEach(function(p){ isArch(p)?nZ++:nA++; });
+  el('nActive').textContent=nA; el('nArch').textContent=nZ;
+  el('vActive').setAttribute('aria-pressed',mode==='active');
+  el('vArch').setAttribute('aria-pressed',mode==='archived');
+  el('vAll').setAttribute('aria-pressed',mode==='all');
+  var ready=all.filter(function(p){ return !isArch(p)&&complete(p); }).length;
+  el('sweep').hidden=!(ready&&mode!=='archived');
+  el('sweep').textContent='Archive '+ready+' completed';
+  el('sweep').disabled=!live;
+
+  var rs=rows();
+  var hc={late:'var(--red)',soon:'var(--gold)',hold:'var(--hold)',done:'var(--green)'};
+  /* fixed layout only honors the colgroup when the table itself has a width */
+  var total=62; COLS.forEach(function(c){total+=c.w;});
+  var group='<colgroup>'+COLS.map(function(c){
+      return '<col style="width:'+c.w+'px">';}).join('')+'<col style="width:62px"></colgroup>';
+  var head='<tr>'+COLS.map(function(c){
+      return '<th'+(c.k==='project'?' class="proj"':'')+' data-k="'+c.k+'">'+
+        esc(c.t)+(sortKey===c.k?(sortDir>0?' ▲':' ▼'):'')+'</th>';}).join('')+'<th class="act"></th></tr>';
+  var body=rs.map(function(p,i){
+    var h=health(p), c=current(p), n=days(targetDate(p,c).v);
+    return '<tr data-row="'+esc(p.id)+'"'+(isArch(p)?' class="isarch"':'')+'>'+COLS.map(function(col){
+      var extra='';
+      if(col.k==='project'){
+        extra=(h==='late'&&n!==null)?'<span class="flag">'+(-n)+'d overdue</span>':'';
+        var grab=!sortKey&&live;
+        return '<td class="proj" style="--hc:'+(hc[h]||'transparent')+'">'+
+          '<span class="rn'+(grab?' grab':' locked')+'"'+
+          ' title="'+(grab?'Drag to reorder':(sortKey?'Clear the sort to reorder rows':'Reordering needs the live connection'))+
+          '">'+(i+1)+'</span>'+cellFor(p,col)+extra+cmark(p,col)+'</td>';
+      }
+      return '<td'+tdClass(p,col)+'>'+cellFor(p,col)+cmark(p,col)+'</td>';
+    }).join('')+'<td class="act">'+
+      '<button class="arch" data-id="'+esc(p.id)+'" title="'+(isArch(p)?'Restore to active':'Archive')+'">'+
+        (isArch(p)?'⇡':'⇣')+'</button>'+
+      '<button class="del" data-id="'+esc(p.id)+'" title="Delete row">✕</button></td></tr>';
+  }).join('');
+  var open='<table style="width:'+total+'px">';
+  el('grid').innerHTML=rs.length
+    ? open+group+'<thead>'+head+'</thead><tbody>'+body+'</tbody></table>'
+    : open+group+'<thead>'+head+'</thead></table>'+emptyState();
+
+  wireEmpty();
+  Array.prototype.forEach.call(el('grid').querySelectorAll('thead th[data-k]'),function(th){
+    th.onclick=function(){ if(sortKey===th.dataset.k){ if(sortDir<0){sortKey='';sortDir=1;} else sortDir=-1; }
+      else{ sortKey=th.dataset.k; sortDir=1; } keepPlace(render); };
+  });
+  Array.prototype.forEach.call(el('grid').querySelectorAll('.cell'),function(inp){
+    if(inp.tagName==='BUTTON') return;            /* date stubs wire themselves below */
+    var isText=inp.tagName!=='SELECT'&&inp.type!=='date';
+    if(inp.tagName==='TEXTAREA') fitArea(inp);
+    inp.addEventListener('change',function(){ save(inp.dataset.id,inp.dataset.f,inp.value); });
+    if(isText) inp.addEventListener('input',function(){ if(inp.tagName==='TEXTAREA') fitArea(inp); });
+  });
+  Array.prototype.forEach.call(el('grid').querySelectorAll('.dstub'),function(b){
+    b.onclick=function(){
+      var id=b.dataset.id, f=b.dataset.f;
+      var inp=document.createElement('input');
+      inp.type='date'; inp.className='cell'; inp.dataset.id=id; inp.dataset.f=f;
+      b.parentNode.replaceChild(inp,b);
+      inp.addEventListener('change',function(){ save(id,f,inp.value); });
+      inp.addEventListener('blur',function(){ if(!inp.value) render(); });  /* nothing entered: back to the stub */
+      inp.focus();
+      try{ if(inp.showPicker) inp.showPicker(); }catch(e){}
+    };
+  });
+  Array.prototype.forEach.call(el('grid').querySelectorAll('.del'),function(b){ b.onclick=function(){ del(b); }; });
+  Array.prototype.forEach.call(el('grid').querySelectorAll('.arch'),function(b){
+    b.onclick=function(){ setArchived(b.dataset.id,!isArch(byId[b.dataset.id])); }; });
+  Array.prototype.forEach.call(el('grid').querySelectorAll('.cmark'),function(b){
+    b.onclick=function(ev){ ev.stopPropagation(); openComments(b.dataset.p,b.dataset.c,b); }; });
+  wireDrag();
+}
+function fitArea(t){ t.style.height='auto'; t.style.height=Math.min(t.scrollHeight,90)+'px'; }
+
+/* An empty grid should say which filters emptied it and where the matches went. */
+var HNAME={late:'Overdue',soon:'Due within 14 days',hold:'On hold',done:'Permitted',ok:'On track',none:'No date set'};
+var MNAME={active:'Active',archived:'Archived',all:'All'};
+function emptyState(){
+  var on=[];
+  if(filt.q)      on.push({k:'q',    lab:'Search',    v:filt.q});
+  if(filt.arch)   on.push({k:'arch', lab:'Architect', v:filt.arch});
+  if(filt.eng)    on.push({k:'eng',  lab:'Engineer',  v:filt.eng});
+  if(filt.pkg)    on.push({k:'pkg',  lab:'Package',   v:filt.pkg});
+  if(filt.health) on.push({k:'health',lab:'State',    v:HNAME[filt.health]||filt.health});
+
+  if(!on.length){
+    /* no filters and still nothing on screen — say what the page is actually holding */
+    var nA=0,nZ=0;
+    order.map(function(i){return byId[i];}).filter(Boolean)
+      .forEach(function(p){ isArch(p)?nZ++:nA++; });
+    return '<div class="empty"><h2>Nothing in '+esc(MNAME[mode])+'.</h2>'+
+      (mode==='archived'?'Archive a project with the ⇣ button and it will land here.'
+                        :'Add a project with the + Row button.')+
+      '<div class="mono" style="font-size:11px;margin-top:12px;opacity:.75">'+
+      order.length+' loaded · '+nA+' active · '+nZ+' archived · view: '+esc(mode)+
+      (sortKey?' · sorted by '+esc(sortKey)+(sortDir>0?' ▲':' ▼'):' · unsorted')+
+      '</div></div>';
+  }
+  var other=['active','archived','all'].filter(function(m){return m!==mode;})
+    .map(function(m){return {m:m,n:rowsIn(m).length};}).filter(function(o){return o.n>0;});
+  /* "All" is redundant advice when the other single view already accounts for every match */
+  if(other.length===2&&other[0].n===other[1].n) other=[other[0]];
+
+  return '<div class="empty">'+
+    '<h2>No '+esc(MNAME[mode].toLowerCase())+' projects match.</h2>'+
+    '<div>'+(other.length?'These filters are on, but there are matches elsewhere:'
+                         :'These filters are on:')+'</div>'+
+    '<div class="chips">'+on.map(function(f){
+      return '<span class="chip"><span>'+esc(f.lab)+' <b>'+esc(f.v)+'</b></span>'+
+        '<button data-drop="'+f.k+'" title="Remove this filter">✕</button></span>';}).join('')+'</div>'+
+    '<div class="acts">'+
+      other.map(function(o){ return '<button class="btn" data-go="'+o.m+'">Show '+
+        o.n+' in '+esc(MNAME[o.m])+'</button>';}).join('')+
+      '<button class="btn ghost" data-drop="*">Clear all filters</button>'+
+    '</div></div>';
+}
+function wireEmpty(){
+  Array.prototype.forEach.call(el('grid').querySelectorAll('[data-drop]'),function(b){
+    b.onclick=function(){
+      if(b.dataset.drop==='*'){ filt={q:'',arch:'',eng:'',pkg:'',health:''}; el('q').value=''; }
+      else { filt[b.dataset.drop]=''; if(b.dataset.drop==='q') el('q').value=''; }
+      render();
+    };
+  });
+  Array.prototype.forEach.call(el('grid').querySelectorAll('[data-go]'),function(b){
+    b.onclick=function(){ mode=b.dataset.go; render(); };
+  });
+}
+
+
+/* ── drag to reorder ────────────────────────────────────────── */
+/* Rows carry a numeric `order` field and the live query sorts on it, so a move
+   only has to rewrite the dragged row: its new order is the midpoint between
+   its new neighbours. Renumbers everything when the gap gets too small. */
+function onum(p){ var v=p&&p.order; return typeof v==='number'&&isFinite(v)?v:0; }
+var dragId=null, dropOn=null, dropBefore=false;
+/* Pointer events rather than HTML5 drag-and-drop: works with touch and trackpads
+   and does not depend on dataTransfer behaving the same across browsers. */
+function wireDrag(){
+  Array.prototype.forEach.call(el('grid').querySelectorAll('.rn.grab'),function(g){
+    g.addEventListener('mousedown',startDrag);
+    g.addEventListener('touchstart',startDrag,{passive:false});
+  });
+}
+function pointOf(ev){
+  var t=ev.touches&&ev.touches[0];
+  return {x:t?t.clientX:ev.clientX, y:t?t.clientY:ev.clientY};
+}
+function startDrag(ev){
+  if(ev.button&&ev.button!==0) return;
+  var tr=ev.currentTarget.closest('tr[data-row]'); if(!tr) return;
+  ev.preventDefault();
+  dragId=tr.dataset.row; dropOn=null;
+  tr.classList.add('dragging');
+  document.body.style.userSelect='none';
+  document.addEventListener('mousemove',onDrag,true);
+  document.addEventListener('mouseup',endDrag,true);
+  document.addEventListener('touchmove',onDrag,{passive:false,capture:true});
+  document.addEventListener('touchend',endDrag,true);
+}
+function onDrag(ev){
+  if(!dragId) return;
+  ev.preventDefault();
+  var pt=pointOf(ev);
+  var hit=document.elementFromPoint(pt.x,pt.y);
+  var tr=hit&&hit.closest?hit.closest('tr[data-row]'):null;
+  clearDrop(true);
+  if(!tr||tr.dataset.row===dragId){ dropOn=null; return; }
+  var r=tr.getBoundingClientRect();
+  dropBefore=(pt.y-r.top)<r.height/2;
+  dropOn=tr.dataset.row;
+  tr.classList.add(dropBefore?'dropbefore':'dropafter');
+}
+function endDrag(){
+  document.removeEventListener('mousemove',onDrag,true);
+  document.removeEventListener('mouseup',endDrag,true);
+  document.removeEventListener('touchmove',onDrag,{capture:true});
+  document.removeEventListener('touchend',endDrag,true);
+  document.body.style.userSelect='';
+  var src=dragId, tgt=dropOn, before=dropBefore;
+  dragId=null; dropOn=null;
+  clearDrop();
+  if(src&&tgt&&src!==tgt) moveRow(src,tgt,before);
+}
+function clearDrop(keepDragging){
+  Array.prototype.forEach.call(el('grid').querySelectorAll('tr'),function(t){
+    t.classList.remove('dropbefore','dropafter');
+    if(!keepDragging) t.classList.remove('dragging'); });
+}
+function moveRow(srcId,tgtId,before){
+  if(!live||!db){ flash('Read-only — the new order was not saved.',true); return; }
+  var full=order.slice(), from=full.indexOf(srcId);
+  if(from<0) return;
+  full.splice(from,1);
+  var ti=full.indexOf(tgtId); if(ti<0) return;
+  var to=before?ti:ti+1;
+  full.splice(to,0,srcId);
+  var prev=to>0?byId[full[to-1]]:null, next=to<full.length-1?byId[full[to+1]]:null;
+  var po=prev?onum(prev):null, no=next?onum(next):null, v;
+  if(po===null&&no===null) v=0;
+  else if(po===null) v=no-1;
+  else if(no===null) v=po+1;
+  else if(Math.abs(no-po)<1e-9){ return renumber(full); }
+  else v=(po+no)/2;
+  byId[srcId].order=v; order=full; keepPlace(render);
+  db.doc('projects/'+srcId).update({order:v,updatedAt:Date.now()})
+    .then(function(){ flash('Moved '+(byId[srcId].project||'row')+'.'); })
+    .catch(function(e){ flash('Could not save the new order ('+((e&&e.code)||'error')+').',true); });
+}
+/* fallback when midpoints run out of room: spread everything back out */
+function renumber(full){
+  order=full; full.forEach(function(id,i){ if(byId[id]) byId[id].order=i; });
+  keepPlace(render);
+  var n=Date.now(), fails=0;
+  full.forEach(function(id,i){
+    db.doc('projects/'+id).update({order:i,updatedAt:n})
+      .catch(function(){ if(!fails++) flash('Some rows did not keep their new order — reload to check.',true); });
+  });
+}
+
+/* ── per-cell comments ──────────────────────────────────────── */
+function cmark(p,c){
+  var n=cthread(p.id,c.k).length;
+  return '<button class="cmark'+(n?' has':'')+'" data-p="'+esc(p.id)+'" data-c="'+esc(c.k)+'"'+
+    ' title="'+(n?n+' comment'+(n>1?'s':''):'Add a comment')+'" aria-label="Comments">'+(n||'·')+'</button>';
+}
+function closePop(){
+  var e=el('pop'); if(e) e.remove();
+  openCell=null;
+  document.removeEventListener('mousedown',outsidePop,true);
+  document.removeEventListener('keydown',escPop,true);
+}
+function outsidePop(ev){ var e=el('pop'); if(e&&!e.contains(ev.target)&&!/cmark/.test(ev.target.className||'')) closePop(); }
+function escPop(ev){ if(ev.key==='Escape'){ ev.stopPropagation(); closePop(); } }
+
+function openComments(pid,field,anchorEl){
+  if(openCell&&openCell.pid===pid&&openCell.field===field){ closePop(); return; }
+  closePop();
+  openCell={pid:pid,field:field};
+  var pop=document.createElement('div');
+  pop.className='pop'; pop.id='pop';
+  document.body.appendChild(pop);
+  var r=anchorEl.getBoundingClientRect();
+  var left=Math.min(Math.max(8,r.right-320), window.innerWidth-328);
+  var top=r.bottom+6;
+  pop.style.left=left+'px';
+  pop.style.top=top+'px';
+  drawPop();
+  /* flip above the cell when it would hang off the bottom */
+  var ph=pop.getBoundingClientRect().height;
+  if(top+ph>window.innerHeight-8) pop.style.top=Math.max(8,r.top-ph-6)+'px';
+  document.addEventListener('mousedown',outsidePop,true);
+  document.addEventListener('keydown',escPop,true);
+  var ta=pop.querySelector('textarea'); if(ta) ta.focus();
+}
+function colLabel(f){
+  for(var i=0;i<COLS.length;i++) if(COLS[i].k===f) return COLS[i].t;
+  return f;
+}
+function drawPop(){
+  var pop=el('pop'); if(!pop||!openCell) return;
+  var pid=openCell.pid, field=openCell.field;
+  var p=byId[pid]||{}, items=cthread(pid,field);
+  var draft=pop.querySelector('textarea'), keep=draft?draft.value:'';
+  var ids={}; items.forEach(function(c){ if(c.by) ids[c.by]=1; });
+  var body=items.map(function(c){
+    var pr=profs[c.by]||{}, nm=pr.name||'Someone', mine=c.by&&c.by===meId;
+    return '<div class="cmt"><div class="who">'+
+      (pr.avatarUrl?'<img src="'+esc(pr.avatarUrl)+'" alt="">':'')+
+      '<b>'+esc(mine?(nm==='Someone'?'You':nm):nm)+'</b>'+
+      '<time>'+esc(when(c.at))+'</time>'+
+      (live?'<button data-del="'+esc(c.id)+'" title="Delete this comment">✕</button>':'')+
+      '</div><p></p></div>';
+  }).join('');
+  pop.innerHTML='<header><b>'+esc(p.project||'Untitled')+'</b><span>'+esc(colLabel(field))+'</span>'+
+      '<button id="popx" title="Close" aria-label="Close">✕</button></header>'+
+    '<div class="thread">'+(items.length?body:'<div class="none">No comments on this cell yet.</div>')+'</div>'+
+    (live?'<form><textarea placeholder="Add a comment…" maxlength="4000"></textarea>'+
+       '<div class="frow"><button type="submit" class="btn">Comment</button>'+
+       '<span class="hint">Visible to everyone with access</span></div></form>'
+     :'<div class="none">Read-only — commenting needs the live connection.</div>');
+  /* text set as textContent so a comment can never inject markup */
+  var ps=pop.querySelectorAll('.cmt p');
+  items.forEach(function(c,i){ if(ps[i]) ps[i].textContent=c.text; });
+  var ta=pop.querySelector('textarea'); if(ta&&keep) ta.value=keep;
+  pop.querySelector('#popx').onclick=closePop;
+  var f=pop.querySelector('form');
+  if(f) f.onsubmit=function(ev){ ev.preventDefault(); postComment(pid,field,ta.value); };
+  if(ta) ta.addEventListener('keydown',function(ev){
+    if((ev.metaKey||ev.ctrlKey)&&ev.key==='Enter'){ ev.preventDefault(); postComment(pid,field,ta.value); } });
+  Array.prototype.forEach.call(pop.querySelectorAll('[data-del]'),function(b){
+    b.onclick=function(){ removeComment(pid,field,b.dataset.del); }; });
+  resolveNames(Object.keys(ids));
+}
+/* names are resolved per render and never stored — only ids live in the data */
+function resolveNames(ids){
+  var need=ids.filter(function(i){ return i && !profs[i]; });
+  if(!need.length||!userCap||!userCap.profiles) return;
+  userCap.profiles(need).then(function(map){
+    var got=false;
+    need.forEach(function(i){ if(map&&map[i]){ profs[i]=map[i]; got=true; } });
+    if(got) drawPop();
+  }).catch(function(){});
+}
+function postComment(pid,field,text){
+  text=(text||'').trim();
+  if(!text) return;
+  if(!live||!db){ flash('Read-only — the comment was not saved.',true); return; }
+  var k=ckey(pid,field), cur=cthread(pid,field).slice();
+  cur.push({id:'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),
+            by:meId||'', text:text.slice(0,4000), at:Date.now()});
+  cmts[k]={projectId:pid,field:field,items:cur};
+  var ta=el('pop')&&el('pop').querySelector('textarea'); if(ta) ta.value='';
+  drawPop(); render();
+  db.doc('comments/'+k).set({projectId:pid,field:field,items:cur,updatedAt:Date.now()})
+    .catch(function(e){ flash('The comment did not save ('+((e&&e.code)||'error')+').',true); });
+}
+function removeComment(pid,field,cid){
+  if(!live||!db) return;
+  var k=ckey(pid,field), cur=cthread(pid,field).filter(function(c){ return c.id!==cid; });
+  if(cur.length) cmts[k]={projectId:pid,field:field,items:cur}; else delete cmts[k];
+  drawPop(); render();
+  var done=cur.length
+    ? db.doc('comments/'+k).set({projectId:pid,field:field,items:cur,updatedAt:Date.now()})
+    : db.doc('comments/'+k).delete();
+  done.catch(function(e){ flash('The comment did not delete ('+((e&&e.code)||'error')+').',true); });
+}
+
+/* ── edits ──────────────────────────────────────────────────── */
+var flashT=null;
+function flash(msg,bad){
+  el('noticeTxt').textContent=msg; el('notice').hidden=false;
+  clearTimeout(flashT);
+  if(!bad) flashT=setTimeout(function(){ if(live) el('notice').hidden=true; },1400);
+}
+function save(id,field,value){
+  var p=byId[id]; if(!p||p[field]===value) return;
+  p[field]=value;
+  keepPlace(render);
+  if(!live||!db){ flash('Read-only — that change was not saved.',true); return; }
+  var body={}; body[field]=value; body.updatedAt=Date.now();
+  db.doc('projects/'+id).update(body).then(function(){ flash('Saved.'); })
+   .catch(function(e){ flash('Save failed ('+((e&&e.code)||'error')+') — reload and try again.',true); });
+}
+function addRow(){
+  if(!live||!db) return;
+  var ref=db.collection('projects').doc();
+  var p={project:'',architect:'',engineer:'',finishPackage:'TBD',
+    siteSurvey:'Not Started',surveyDate:'',
+    floorplanStatus:'Not Started',floorplanDue:'',backgroundStatus:'Not Started',backgroundDue:'',
+    permitArchStatus:'Not Started',permitArchDue:'',permitMepStatus:'Not Started',permitMepDue:'',
+    permitStatus:'Not Started',permitSubmissionDate:'',permitReceiptDate:'',notes:'',
+    archived:false, archivedAt:0, order:Date.now()/1000, updatedAt:Date.now()};
+  ref.set(p).then(function(){
+    p.id=ref.id; byId[ref.id]=p; if(order.indexOf(ref.id)<0) order.push(ref.id);
+    sortKey=''; if(mode==='archived') mode='active'; render();
+    var f=el('grid').querySelector('[data-id="'+ref.id+'"][data-f="project"]');
+    if(f){ f.scrollIntoView({block:'center'}); f.focus(); }
+  }).catch(function(e){ flash('Could not add a row ('+((e&&e.code)||'error')+').',true); });
+}
+/* ── archive ────────────────────────────────────────────────── */
+function setArchived(id,on){
+  var p=byId[id]; if(!p||isArch(p)===on) return;
+  p.archived=on; p.archivedAt=on?Date.now():0;
+  render();
+  if(!live||!db){ p.archived=!on; render();
+    flash('Read-only — archiving isn’t saved right now.',true); return; }
+  db.doc('projects/'+id).update({archived:on,archivedAt:p.archivedAt,updatedAt:Date.now()})
+    .then(function(){ flash(on?'Archived '+(p.project||'row')+'.':'Restored '+(p.project||'row')+'.'); })
+    .catch(function(e){ p.archived=!on; render();
+      flash('Couldn’t archive ('+((e&&e.code)||'error')+').',true); });
+}
+function sweep(){
+  if(!live||!db){ flash('Read-only — archiving isn’t saved right now.',true); return; }
+  var todo=order.map(function(i){return byId[i];}).filter(Boolean)
+    .filter(function(p){ return !isArch(p)&&complete(p); });
+  if(!todo.length) return;
+  var b=el('sweep');
+  if(b.dataset.armed!=='1'){ b.dataset.armed='1';
+    b.textContent='Archive '+todo.length+'? Click again';
+    setTimeout(function(){ if(b.dataset.armed==='1'){ b.dataset.armed=''; render(); } },4000); return; }
+  b.dataset.armed='';
+  var n=Date.now(), done=0, failed=0;
+  todo.forEach(function(p){ p.archived=true; p.archivedAt=n; });
+  render();
+  todo.forEach(function(p){
+    db.doc('projects/'+p.id).update({archived:true,archivedAt:n,updatedAt:n})
+      .then(function(){ if(++done+failed===todo.length&&!failed) flash('Archived '+done+' completed projects.'); })
+      .catch(function(){ failed++; flash('Some rows didn’t archive — reload to check.',true); });
+  });
+}
+function del(b){
+  if(!live){ flash('Read-only — rows can’t be deleted.',true); return; }
+  if(b.dataset.armed!=='1'){ b.dataset.armed='1'; b.title='Click again to delete';
+    setTimeout(function(){ if(b){b.dataset.armed='';b.title='Delete row';} },4000); return; }
+  var id=b.dataset.id;
+  if(openCell&&openCell.pid===id) closePop();
+  delete byId[id]; order=order.filter(function(x){return x!==id;});
+  var orphans=Object.keys(cmts).filter(function(k){ return cmts[k]&&cmts[k].projectId===id; });
+  orphans.forEach(function(k){ delete cmts[k]; });
+  render();
+  if(db){
+    db.doc('projects/'+id).delete().catch(function(){ flash('Delete may not have saved — reload to check.',true); });
+    orphans.forEach(function(k){ db.doc('comments/'+k).delete().catch(function(){}); });
+  }
+}
+
+/* ── CSV ────────────────────────────────────────────────────── */
+function toCSV(){
+  var HL={late:'Overdue',soon:'Due within 14 days',hold:'On hold',done:'Permitted',ok:'On track',none:'No date set'};
+  var head=COLS.map(function(c){return c.t;}).concat(['Status','Archived']);
+  var lines=[head];
+  rows().forEach(function(p){
+    lines.push(COLS.map(function(c){return p[c.k]||'';})
+      .concat([HL[health(p)]||'', isArch(p)?'Yes':'No']));
+  });
+  return lines.map(function(r){return r.map(function(v){
+    v=String(v==null?'':v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(',');}).join('\r\n');
+}
+function exportCSV(){
+  var name='plan-tracking-'+new Date().toISOString().slice(0,10)+'.csv';
+  useCap('downloads').then(function(d){
+    if(!d){ flash('Downloads aren’t available in this view.',true); return; }
+    return d.save({filename:name, data:toCSV()});
+  }).catch(function(){ flash('The export was cancelled or unavailable.',true); });
+}
+
+/* ── wiring ─────────────────────────────────────────────────── */
+var qt=null;
+el('q').addEventListener('input',function(){ clearTimeout(qt);
+  qt=setTimeout(function(){ filt.q=el('q').value; render(); },180); });
+el('fArch').addEventListener('change',function(){filt.arch=this.value;render();});
+el('fEng').addEventListener('change',function(){filt.eng=this.value;render();});
+el('fPkg').addEventListener('change',function(){filt.pkg=this.value;render();});
+el('clear').onclick=function(){ filt={q:'',arch:'',eng:'',pkg:'',health:''}; el('q').value=''; render(); };
+el('add').onclick=addRow;
+el('csv').onclick=exportCSV;
+el('sweep').onclick=sweep;
+function setMode(m){ return function(){ mode=m; el('sweep').dataset.armed=''; render(); }; }
+el('vActive').onclick=setMode('active');
+el('vArch').onclick=setMode('archived');
+el('vAll').onclick=setMode('all');
+
+/* ── connect ────────────────────────────────────────────────── */
+function useCap(name){
+  try{
+    if(typeof claude==='undefined'||!claude||typeof claude.use!=='function') return Promise.resolve(null);
+    return Promise.resolve(claude.use(name));
+  }catch(e){ return Promise.resolve(null); }
+}
+/* comments ride alongside the projects: one subscription, keyed <projectId>__<field> */
+function watchComments(){
+  if(cunsub||!db) return;
+  cunsub=db.collection('comments').onSnapshot(function(snap){
+    var next={};
+    try{
+      (snap.docs||[]).forEach(function(doc){
+        var s=doc.data()||{}, v={};
+        for(var k in s) v[k]=s[k];
+        if(!Array.isArray(v.items)) v.items=[];
+        next[doc.id]=v;
+      });
+    }catch(e){ return; }
+    cmts=next; render(); if(openCell) drawPop();
+  }, function(){ /* comments are a side channel — never break the grid over them */ });
+}
+function whoAmI(){
+  useCap('user').then(function(u){
+    if(!u) return;
+    userCap=u;
+    if(u.id) u.id().then(function(i){ meId=i||null; }).catch(function(){});
+  });
+}
+function loadSnapshot(){
+  var nextById={}, nextOrder=[];
+  SNAPSHOT.forEach(function(r){ var v={}; for(var k in r) v[k]=r[k]; nextById[r.id]=v; nextOrder.push(r.id); });
+  byId=nextById; order=nextOrder;
+  render();
+}
+function readOnly(why){
+  live=false; el('add').disabled=true;
+  el('noticeTxt').innerHTML='<b>Read-only.</b> '+esc(why)+' Showing the saved snapshot from '+SNAPDATE+
+    '. <button class="btn ghost" id="retry" style="margin-left:6px;padding:3px 9px">Try again</button>';
+  el('notice').hidden=false;
+  var r=el('retry'); if(r) r.onclick=function(){ el('noticeTxt').textContent='Reconnecting…'; connect(); };
+}
+var arrived=false, unsub=null;
+function connect(){
+  if(unsub){ try{unsub();}catch(e){} unsub=null; }
+  var settled=false;
+  setTimeout(function(){ if(!settled&&!arrived) readOnly('The live connection didn’t answer.'); },12000);
+  useCap('db').then(function(d){
+    if(!d){ settled=true; readOnly('Live saving isn’t available in this view.'); return; }
+    db=d;
+    unsub=db.collection('projects').orderBy('order').onSnapshot(function(snap){
+      settled=true; arrived=true;
+      /* Build into locals and commit only once the whole rebuild succeeds. Wiping the
+         globals up front meant one bad document left the page holding nothing, while
+         the already-drawn rows stayed on screen until the next render exposed it. */
+      var nextById={}, nextOrder=[];
+      try{
+        var docs=snap.docs||[];
+        for(var i=0;i<docs.length;i++){
+          var doc=docs[i], src=doc.data()||{}, v={};
+          /* data() comes back frozen — copy it before adding anything, or strict mode
+             throws "cannot add property id" and the whole update is lost */
+          for(var k in src) v[k]=src[k];
+          v.id=doc.id;
+          ['project','architect','engineer','finishPackage','notes','siteSurvey','surveyDate']
+            .forEach(function(f){ if(v[f]==null) v[f]=''; });
+          v.archived=v.archived===true;
+          nextById[doc.id]=v; nextOrder.push(doc.id);
+        }
+      }catch(e){
+        if(window.console&&console.error) console.error('snapshot rebuild failed',e);
+        flash('A live update could not be read ('+((e&&e.message)||e)+'). Still showing the last good data.',true);
+        return;                     /* keep whatever is already loaded */
+      }
+      if(!nextOrder.length){
+        if(order.length) return;    /* an empty delivery never wipes good data */
+        loadSnapshot(); readOnly('The live store came back empty.'); return;
+      }
+      byId=nextById; order=nextOrder;
+      live=true; el('add').disabled=false; el('notice').hidden=true; render();
+      watchComments();
+    }, function(e){
+      settled=true; var code=(e&&e.code)||'unknown';
+      if(arrived){ live=false; el('add').disabled=true;
+        el('noticeTxt').textContent='Live sync stopped ('+code+'). Reload to reconnect — changes now won’t save.';
+        el('notice').hidden=false; }
+      else readOnly('The live store couldn’t be read ('+code+').');
+    });
+  }).catch(function(e){ settled=true;
+    readOnly('The live store couldn’t be reached ('+((e&&(e.code||e.message))||'unknown')+').'); });
+}
+loadSnapshot();
+whoAmI();
+connect();
+})();
+</script>
+</body></html>
